@@ -37,4 +37,21 @@ describe Build do
       end
     end
   end
+
+  describe "#review_errors" do
+    it "returns and list of unique linter errors" do
+      file_review1 = create(:file_review, error: 'error parsing config')
+      file_review2 = create(:file_review, error: 'error parsing config')
+      file_review3 = create(:file_review, error: 'file is invalid')
+      file_reviews = [file_review1, file_review2, file_review3]
+      build = create(:build, file_reviews: file_reviews)
+
+      result = build.review_errors
+
+      expect(result).to match_array [
+        file_review1.error,
+        file_review3.error,
+      ]
+    end
+  end
 end

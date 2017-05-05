@@ -59,14 +59,15 @@ describe PullRequest do
     end
   end
 
-  describe "#comment_on_violations" do
+  describe "#make_comments" do
     it "posts a review with comments to GitHub as the Hound user" do
       payload = payload_stub
       github = instance_double("GithubApi", create_pull_request_review: nil)
       pull_request = pull_request_stub(github, payload)
       violation = violation_stub
+      review_errors = ["invalid config", "filetype not supported"]
 
-      pull_request.comment_on_violations([violation])
+      pull_request.make_comments([violation], review_errors)
 
       expect(github).to have_received(:create_pull_request_review).with(
         "org/repo",
@@ -78,6 +79,7 @@ describe PullRequest do
             body: violation.messages.join,
           },
         ],
+        "invalid config<br>filetype not supported",
       )
     end
   end

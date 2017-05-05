@@ -6,7 +6,7 @@ class CompleteFileReview
   end
 
   def call
-    create_violations!
+    complete_file_review
 
     CompleteBuild.call(
       pull_request: pull_request,
@@ -19,12 +19,13 @@ class CompleteFileReview
 
   attr_reader :attributes
 
-  def create_violations!
+  def complete_file_review
     attributes.fetch("violations").each do |violation|
       line = commit_file.line_at(violation.fetch("line"))
       file_review.build_violation(line, violation.fetch("message"))
     end
 
+    file_review.error = attributes['error']
     file_review.complete
     file_review.save!
     file_review.build.increment!(
